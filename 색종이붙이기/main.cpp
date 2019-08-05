@@ -40,31 +40,39 @@ void dfs(int count, int paper_num)
 		nRet = min(nRet, paper_num);
 		return;
 	}
+	if (count > ntotal_one) return;
 
+	int x, y;
+	bool flag = false;
 	for (int i = 0; i < 10; i++){
 		for (int j = 0; j < 10; j++){
-			
 			if (nfiled[i][j] && !nvisit[i][j]){
+				x = j; y = i; flag = true;
+				break;
+			}
+		}
+		if (flag) break;
+	}
+			
+	for (int k = 6; k > 0; k--)
+	{
+		if (ncolor_paper[k] > 0)
+		{
+			if (check_paper(x, y, k))
+			{
+				check_visit(x, y, k, 1);
+				ncolor_paper[k]--;
 
-				for (int k = 1; k < 6; k++)
-				{
-					if (ncolor_paper[k] > 0 && check_paper(j, i, k))
-					{
-						check_visit(j, i, k, 1);
-						ncolor_paper[k]--;
+				dfs(count + (k * k), paper_num + 1);
 
-						dfs(count + (k * k), paper_num + 1);
-
-						ncolor_paper[k]++;
-						check_visit(j, i, k, 0);
-					}
-				}
+				ncolor_paper[k]++;
+				check_visit(x, y, k, 0);
 			}
 		}
 	}
 
-
-
+	
+	return;
 
 }
 
