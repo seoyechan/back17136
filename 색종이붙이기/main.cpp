@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <algorithm>
 
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable:4996)
@@ -8,7 +9,7 @@ using namespace std;
 int nfiled[11][11];
 int nvisit[11][11];
 int ncolor_paper[6] = { 5, 5, 5, 5, 5, 5 };
-int ntotal_one;
+int ntotal_one, nRet;
 
 bool check_paper(int cur_x, int cur_y, int paper_num)
 {
@@ -22,43 +23,44 @@ bool check_paper(int cur_x, int cur_y, int paper_num)
 	return true;
 }
 
+void check_visit(int cur_x, int cur_y, int paper_num, int nif)
+{
+	for (int i = cur_y; i < cur_y + paper_num; i++){
+		for (int j = cur_x; j < cur_x + paper_num; j++){
+			nvisit[i][j] = nif;
+		}
+	}
+}
+
 
 void dfs(int count, int paper_num)
 {
 	if (count == ntotal_one)
 	{
-
-
-
-
-
-
+		nRet = min(nRet, paper_num);
 		return;
 	}
 
-	int x, y = 0;
-
 	for (int i = 0; i < 10; i++){
 		for (int j = 0; j < 10; j++){
-			if (nfiled[i][j]){
-				x = j;
-				y = i;
+			
+			if (nfiled[i][j] && !nvisit[i][j]){
+
+				for (int k = 1; k < 6; k++)
+				{
+					if (ncolor_paper[k] > 0 && check_paper(j, i, k))
+					{
+						check_visit(j, i, k, 1);
+						ncolor_paper[k]--;
+
+						dfs(count + (k * k), paper_num + 1);
+
+						ncolor_paper[k]++;
+						check_visit(j, i, k, 0);
+					}
+				}
 			}
 		}
-	}
-
-	for (int i = 1; i < 6; i++)
-	{
-		if (ncolor_paper[i] > 0)
-		{
-			if (check_paper(x, y, i))
-			{
-
-
-
-			}
-		}
-
 	}
 
 
@@ -93,7 +95,20 @@ int main()
 			}
 		}
 
+		if (!ntotal_one){
+			printf("%d\n", 0); continue;
+		}
 
+
+		nRet = 987654321;
+		dfs(0, 0);
+
+		if (nRet == 987654321){
+			printf("%d\n", -1); continue;
+		}
+		else
+			printf("%d\n", nRet);
+		
 
 	}
 	return 0;
