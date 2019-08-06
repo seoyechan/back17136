@@ -16,7 +16,9 @@ bool check_paper(int cur_x, int cur_y, int paper_num)
 	for (int i = cur_y; i < cur_y + paper_num; i++){
 		for (int j = cur_x; j < cur_x + paper_num; j++){
 
-			if (!nfiled[i][j])
+			if (i < 0 || i >= 10 || j < 0 || j >= 10)
+				return false;
+			if (nvisit[i][j] || !nfiled[i][j])
 				return false;
 		}
 	}
@@ -33,45 +35,52 @@ void check_visit(int cur_x, int cur_y, int paper_num, int nif)
 }
 
 
-void dfs(int count, int paper_num)
+void dfs(int i, int j, int count, int paper_num)
 {
+	if (paper_num >= nRet) return;
+	if (count > ntotal_one) return;
+
 	if (count == ntotal_one)
 	{
 		nRet = min(nRet, paper_num);
 		return;
 	}
-	if (count > ntotal_one) return;
 
-	int x, y;
-	bool flag = false;
-	for (int i = 0; i < 10; i++){
-		for (int j = 0; j < 10; j++){
-			if (nfiled[i][j] && !nvisit[i][j]){
-				x = j; y = i; flag = true;
-				break;
-			}
-		}
-		if (flag) break;
-	}
-			
-	for (int k = 6; k > 0; k--)
-	{
-		if (ncolor_paper[k] > 0)
+	if (i == 10) return;
+
+
+	if (nfiled[i][j] && !nvisit[i][j]){
+
+		for (int k = 1; k < 6; k++)
 		{
-			if (check_paper(x, y, k))
+			if (ncolor_paper[k] > 0)
 			{
-				check_visit(x, y, k, 1);
-				ncolor_paper[k]--;
+				if (check_paper(j, i, k))
+				{
+					check_visit(j, i, k, 1);
+					ncolor_paper[k]--;
 
-				dfs(count + (k * k), paper_num + 1);
+					if (j + 1 < 10)
+						dfs(i, j + 1, count + (k * k), paper_num + 1);
+					else
+						dfs(i + 1, 0, count + (k * k), paper_num + 1);
 
-				ncolor_paper[k]++;
-				check_visit(x, y, k, 0);
+					ncolor_paper[k]++;
+					check_visit(j, i, k, 0);
+				}
 			}
 		}
 	}
+	else{
+		if (j + 1 < 10)
+			dfs(i, j + 1, count, paper_num);
+		else
+			dfs(i + 1, 0, count, paper_num);
+	}
 
-	
+
+
+
 	return;
 
 }
@@ -109,14 +118,14 @@ int main()
 
 
 		nRet = 987654321;
-		dfs(0, 0);
+		dfs(0, 0, 0, 0);
 
 		if (nRet == 987654321){
 			printf("%d\n", -1); continue;
 		}
 		else
 			printf("%d\n", nRet);
-		
+
 
 	}
 	return 0;
